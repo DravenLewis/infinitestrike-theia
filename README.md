@@ -9,7 +9,7 @@ cordova plugin add https://github.com/DravenLewis/infinitestrike-theia.git
 
 # Preface
 After wrestling with CORS errors in my Cordova application, I set out to look for a plugin to allow me to make native http and https requests.
-unfortunatly the ones i found did not give me the results I was lokking for, aside from the fact that most of them are discontinued and broken.
+unfortunatly the ones i found did not give me the results I was looking for, aside from the fact that most of them are discontinued and broken.
 I then set out to create a plugin of my own, and this is it! It is my first cordova plugin and only offers basic features, and may include bugs.
 
 ### *Requires Cordova 3.0.0+*
