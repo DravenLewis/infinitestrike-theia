@@ -1,0 +1,134 @@
+# InfiniteStrike Theia
+A simple HTTP / HTTPS request handler for Cordova based Android Apps.
+
+# Preface
+After wrestling with CORS errors in my Cordova application, I set out to look for a plugin to allow me to make native http and https requests.
+unfortunatly the ones i found did not give me the results I was lokking for, aside from the fact that most of them are discontinued and broken.
+I then set out to create a plugin of my own, and this is it! It is my first cordova plugin and only offers basic features, and may include bugs.
+
+### *Requires Cordova 3.0.0+*
+
+# How it works
+Infinite Strike: Theia is a Cordova Plugin around a wrapper for the native HttpUrlConnection and allows us to make 4 main request types "GET", "POST", "PUT", "DELETE".
+
+##### *Note this plug-in requires that the Device be ready*
+
+## GET demo
+```javascript
+  // Example get demo
+  window.onload = () => {
+      document.addEventListener("deviceready",(ev) => {
+          var request = Theia.getRequestHelper();
+          request.get("https://jsonplaceholder.typicode.com/posts",(err,payload,payloadJSON) => {
+            if(!err){
+              console.log(payloadJSON);
+            }
+          });
+      });
+  }
+```
+
+## POST demo
+```javascript
+// example POST demo
+window.onload = () => {
+      document.addEventListener("deviceready",(ev) => {
+          var request = Theia.getRequestHelper();
+          request.post("https://jsonplaceholder.typicode.com/posts",{
+            "example_data" : 1234,
+            "source" : "github"
+          },(err,payload,payloadJSON) => {
+            if(!err){
+              console.log(payloadJSON);
+            }
+          });
+      });
+  }
+```
+
+## PUT demo
+```javascript
+// example PUT demo
+window.onload = () => {
+      document.addEventListener("deviceready",(ev) => {
+          var request = Theia.getRequestHelper();
+          request.put("https://jsonplaceholder.typicode.com/posts",{
+            "name" : "John Doe",
+            "uid" : 8 
+          },(err,payload,payloadJSON) => {
+            if(!err){
+              console.log(payloadJSON);
+            }
+          });
+      });
+  }
+```
+
+## DELETE demo
+```javascript
+// example DELETE demo
+window.onload = () => {
+      document.addEventListener("deviceready",(ev) => {
+          var request = Theia.getRequestHelper();
+          request.delete("https://jsonplaceholder.typicode.com/posts",{
+            "post-id" : 79
+          },(err,payload,payloadJSON) => {
+            if(!err){
+              console.log(payloadJSON);
+            }
+          });
+      });
+  }
+```
+
+## Managing Headers
+
+You can manage request headers before the request has been sent, currently the ability to read response headers
+is not available.
+
+```javascript
+  window.onload = () => {
+    document.addEventListener("deviceready",(ev) => {
+      var request = Theia.getRequestHelper();
+      
+      // Set header example
+      request.setHeader("Accepts","application/json");
+      
+      // Get header example
+      var acceptsHeaderValue = request.getHeader("Accepts");
+      
+      // Clear Headers
+      request.clearHeaders();
+    });
+  }
+```
+
+# Strange Quirk
+
+By default the Request handler uses 'application/x-www-form-urlencoded' as most websites expect that, but our implementation is 1D so your
+json body cannot have sub objects, if you requre sub objects, and your endpoint accepts JSON you can use this feature.
+
+```javascript
+...
+request.setUseUrlFormEncoded (true);
+...
+```
+
+if `true` the sent data would look like this `key1=value1&key2=value2&key3=value3` if `false` the data would look like this:
+```json
+  {
+    "key1" : "value1",
+    "key2" : "value2",
+    "key3" : "value3"
+  }
+```
+
+
+
+
+
+
+
+
+
+
