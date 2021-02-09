@@ -1,6 +1,12 @@
 # InfiniteStrike Theia
 A simple HTTP / HTTPS request handler for Cordova based Android Apps.
 
+## Installation
+
+```sh 
+cordova plugin add https://github.com/DravenLewis/infinitestrike-theia.git 
+```
+
 # Preface
 After wrestling with CORS errors in my Cordova application, I set out to look for a plugin to allow me to make native http and https requests.
 unfortunatly the ones i found did not give me the results I was lokking for, aside from the fact that most of them are discontinued and broken.
