@@ -1,6 +1,6 @@
 {
     "name": "@infinitestrike/infinitestrike-theia",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "HTTP(s) Request Handler for Android Devices.",
     "cordova": {
         "id": "io.infinitestrike.http.theia",
@@ -24,7 +24,7 @@
     "engines": [
         {
             "name": "cordova",
-            "version" : ">=3.0.0"
+            "version": ">=3.0.0"
         }
     ],
     "author": "Draven Lewis",
