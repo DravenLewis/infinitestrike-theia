@@ -13,9 +13,11 @@ import java.io.OutputStream;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Random;
 
 public class TheiaRequest {
 
@@ -31,6 +33,7 @@ public class TheiaRequest {
     };
 
     private HashMap<String, String> headers = new HashMap<String, String>();
+    private HashMap<String, String> responseHeaders = new HashMap<String, String>();
     private String requestBody = "";
     private int requestType = -1;
     private boolean useFormEncoding = false;
@@ -70,6 +73,8 @@ public class TheiaRequest {
         }
         return this;
     }
+
+
 
     public TheiaRequest get(){
         this.requestType = REQUEST_GET;
@@ -131,6 +136,7 @@ public class TheiaRequest {
                             obj.addProperty("message",connection.getResponseMessage());
                             obj.addProperty("data",getRequestResponseBody);
 
+                            this.responseHeaders = TheiaRequest.getHTTPResponseHeaders(this.connection);
                             handler.requestCompleteCallback(new Gson().toJson(obj));
                         }
                         break;
@@ -150,8 +156,10 @@ public class TheiaRequest {
                             obj.addProperty("message",connection.getResponseMessage());
                             obj.addProperty("data",getRequestResponseBody);
 
+                            this.responseHeaders = TheiaRequest.getHTTPResponseHeaders(this.connection);
                             handler.requestCompleteCallback(new Gson().toJson(obj));
                         }
+
                         break;
                     default:
                         //throw new IllegalStateException("Invalid State '" + this.requestType + "'");
@@ -171,7 +179,7 @@ public class TheiaRequest {
                     obj.addProperty("code",responseCode);
                     obj.addProperty("message",connection.getResponseMessage());
                     obj.addProperty("data",errorRequestResponseBody);
-
+                    this.responseHeaders = TheiaRequest.getHTTPResponseHeaders(this.connection);
                     handler.requestCompleteCallback(new Gson().toJson(obj));
                 } catch (IOException e) {
                     JsonObject obj = new JsonObject();
@@ -201,6 +209,10 @@ public class TheiaRequest {
         return isHTTP;
     }
 
+    public String getResponseHeaders(){
+        return new Gson().toJson(TheiaRequest.hashMapToJsonObject(this.responseHeaders));
+    }
+
     private final void setRequestHeaders(final HttpURLConnection connection){
         String[] keys = this.headers.keySet().toArray(new String[0]);
         String[] vals = this.headers.values().toArray(new String[0]);
@@ -225,5 +237,38 @@ public class TheiaRequest {
             urlEncodedString += entry.getKey() + "=" + entry.getValue() + "&";
         }
         return urlEncodedString.substring(0,urlEncodedString.length() - 1).replace("\"","");
+    }
+
+    // Helper Function
+    public static final HashMap<String, String> jsonToHashMap(JsonObject object){
+        final HashMap<String, String> result = new HashMap<String, String>();
+        Set<Map.Entry<String, JsonElement>> entrySet = object.entrySet();
+        for(Map.Entry<String, JsonElement> entry : entrySet){
+            result.put(entry.getKey(),entry.getValue().getAsString());
+        }
+        return result;
+    }
+
+    public static final JsonObject hashMapToJsonObject(HashMap<String, String> map){
+        final JsonObject result = new JsonObject();
+        Set<Map.Entry<String, String>> entrySet = map.entrySet();
+        for(Map.Entry<String, String> entry : entrySet){
+            String key = (entry.getKey() == null) ? String.format("[N# %s]", new Random().nextInt(255)) : entry.getKey();
+            result.addProperty(key,entry.getValue());
+        }
+        return result;
+    }
+
+    public static final HashMap<String, String> getHTTPResponseHeaders(HttpURLConnection connection){
+        final HashMap<String, String> result = new HashMap<String, String>();
+        Set<Map.Entry<String, List<String>>> respHeaders = connection.getHeaderFields().entrySet();
+        for(Map.Entry<String, List<String>> header : respHeaders){
+            String values = "";
+            for(String headerValue : header.getValue()){
+                values += headerValue + ",";
+            }
+            result.put(header.getKey(),values.substring(0, values.length() - 1));
+        }
+        return result;
     }
 }

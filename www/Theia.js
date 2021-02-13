@@ -5,7 +5,15 @@ function Theia() { }
 // Plugin Code Here
 
 var headers = {};
+var responseHeaders = {};
 var useURLFormEncoded = true;
+
+var code = 700;
+var message = "Unset";
+
+var sent  = false;
+var done = false;
+
 /**
  * 
  * @param {String} key - key to be set
@@ -13,7 +21,8 @@ var useURLFormEncoded = true;
  * 
  * Sets a HTTP header for the next request.
  */
-Theia.prototype.setHeader = function (key, value) {
+Theia.prototype.setRequestHeader = function (key, value) {
+    if(sent == true) console.error("Cannot Set header after Request Sent");
     headers[key] = value;
 }
 /**
@@ -22,16 +31,64 @@ Theia.prototype.setHeader = function (key, value) {
  * @returns {String | undefined} - Value of the header
  * Gets one of the set headers
  */
-Theia.prototype.getHeader = function (key) {
+Theia.prototype.getRequestHeader = function (key) {
     return headers[key];
 }
 
 /**
  * Clears all set headers
  */
-Theia.prototype.clearHeaders = function () {
+Theia.prototype.clearRequestHeaders = function () {
+    if(sent == true) console.error("Cannot modify headers after Request Sent");
     headers = {};
 }
+
+
+/**
+ * Gets headers from response, is empty until request is sent.
+ */
+Theia.prototype.getResponseHeaders = function(){
+    if(done == false) console.error("Cannot Read Headers until after request done!");
+    return responseHeaders;
+}
+
+/**
+ * 
+ * @param {String} key - key of the header to get
+ * @returns {String | undefined} - Value of that header, if it exists.
+ * 
+ * Gets the value of the header from the request. 
+ */
+Theia.prototype.getResponseHeader = function(key){
+    if(done == false) console.error("Cannot Read Header until after request done!");
+    return responseHeaders[key];
+}
+
+/**
+ * Clear all response headers
+ * !!! Note, this is an internal function and has no use to Implementation Programmers.
+ */
+Theia.prototype.clearResponseHeaders = function(){
+    responseHeaders = {};
+}
+
+
+/**
+ * Get Code of Response, only valid in method callback.
+ */
+Theia.prototype.getResponseCode = function(){
+    if(done == false) console.error("Cannot Read property until after request done!");
+    return code;
+}
+
+/** 
+ * Get Message from server of Response, only valid in method callback.
+*/
+Theia.prototype.getResponseMessage = function(){
+    if(done == false) console.error("Cannot Read property until after request done!");
+    return message;
+}
+
 /**
  * 
  * @param {Boolean} useURLFE 
@@ -40,6 +97,7 @@ Theia.prototype.clearHeaders = function () {
  * sending upload requests i.e. POST, PUT, DELETE
  */
 Theia.prototype.setUseUrlFormEncoded = function (useURLFE = true) {
+    if(sent == true) console.error("Cannot Set Proptery if Request has already been sent.");
     useURLFormEncoded = useURLFE;
 }
 
@@ -52,23 +110,45 @@ Theia.prototype.setUseUrlFormEncoded = function (useURLFE = true) {
  */
 Theia.prototype.get = function (urlEndpoint, callback = (err, payload) => { }) {
 
+    sent = true;
+
     let errCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+        
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+        
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(true, payload);
     }
 
     let okCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+        
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+        
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+        
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(false, payload);
     }
 
@@ -95,23 +175,45 @@ Theia.prototype.get = function (urlEndpoint, callback = (err, payload) => { }) {
  */
 Theia.prototype.post = function (urlEndpoint, data = {}, callback = (err, payload) => { }) {
 
+    sent = true;
+
     let errCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(true, payload);
     }
 
     let okCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+        
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+        
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+        
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(false, payload);
     }
 
@@ -139,23 +241,45 @@ Theia.prototype.post = function (urlEndpoint, data = {}, callback = (err, payloa
 */
 Theia.prototype.put = function (urlEndpoint, data = {}, callback = (err, payload) => { }) {
 
+    sent = true;
+
     let errCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+        
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+        
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(true, payload);
     }
 
     let okCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+        
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+        
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+        
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(false, payload);
     }
 
@@ -185,23 +309,45 @@ Theia.prototype.put = function (urlEndpoint, data = {}, callback = (err, payload
  */
 Theia.prototype.delete = function (urlEndpoint, data = {}, callback = (err, payload) => { }) {
 
+    sent = true;
+
     let errCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+        
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+        
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(true, payload);
     }
 
     let okCallback = (payload) => {
-        var formattedString = new String(payload).replace('\'', '"');
-        if (isJSON(formattedString)) {
-            payload = JSON.parse(formattedString).data;
-        } else {
-            payload = formattedString;
+        
+        var formattedString = new String(payload).replace('\'','"').replace('\"','"');
+        var jsonResp = JSON.parse(formattedString);
+        
+        var payloadObject = parseJSON(jsonResp["resp"]);
+        message = payloadObject.message;
+        code = payloadObject.code;
+        
+        if(isJSON(jsonResp["resp"])){
+            payload = parseJSON(payloadObject.data);
+        }else{
+            payload = jsonResp["resp"];
         }
+
+        responseHeaders = parseJSON(jsonResp["head"]);
+        done = true;
         callback(false, payload);
     }
 
@@ -228,7 +374,7 @@ Theia.prototype.delete = function (urlEndpoint, data = {}, callback = (err, payl
  * Creates a new TheiaRequest helper.
  */
 Theia.prototype.getRequestHelper = function () {
-    return new TheiaRequest(this);
+    return new TheiaRequest(new Theia());
 }
 
 // END PLUGIN CODE =====================
@@ -263,8 +409,9 @@ function TheiaRequest(theia) {
      * Resets the attached Theia instance, clearing all headers and reseting form encoding.
      */
     this.reset = () => {
-        theia.clearHeaders();
-        theia.setUseUrlFormEncoded(true)
+        theia.clearRequestHeaders();
+        theia.setUseUrlFormEncoded(true);
+        theia.clearResponseHeaders();
     }
 
     /**
@@ -274,8 +421,8 @@ function TheiaRequest(theia) {
      * 
      * Helper Function for Theia.setHeader(), sets internal Theia instance header.
      */
-    this.setHeader = (key, value) => {
-        theia.setHeader(key, value);
+    this.setRequestHeader = (key, value) => {
+        theia.setRequestHeader(key, value);
     }
 
     /**
@@ -285,15 +432,15 @@ function TheiaRequest(theia) {
      * 
      * Helper function for Theia.getHeader(), gets header from internal Theia instance.
      */
-    this.getHeader = (key) => {
-        return theia.getHeader(key);
+    this.getRequestHeader = (key) => {
+        return theia.getRequestHeader(key);
     }
 
     /**
      * Helper function for Theia.clearHeaders(), clears all headers from the internal Theia instance.
      */
-    this.clearHeaders = () => {
-        theia.clearHeaders();
+    this.clearRequestHeaders = () => {
+        theia.clearRequestHeaders();
     }
 
     /**
@@ -385,6 +532,40 @@ function TheiaRequest(theia) {
      * @param {String} payload - raw string representation of the response
      * @param {JSON} payloadJSON - json representation (if available) of the response.
      */
+
+
+    /**
+     * Get Response Headers, only valid in response callback.
+     */
+    this.getResponseHeaders = () => {
+        return theia.getResponseHeaders();
+    }
+
+    /**
+     * 
+     * @param {String} key - key of the header
+     * @returns {String | undefined} - Header value or undefined. 
+     * 
+     * Gets the value of the response header, only works if request is done.
+     */
+    this.getResponseHeader = (key) => {
+        return theia.getResponseHeader(key);
+    }
+
+    /**
+     * Returns the response message from the theia instance, only works if request is done.
+     */
+    this.getResponseMessage = () => {
+        return theia.getResponseMessage();
+    }
+
+    /**
+     * Returns the response code from the theia instance, only works if request is done.
+     */
+    this.getResponseCode = () => {
+        return theia.getResponseCode();
+    }
+
     this.reset();
 }
 
@@ -395,6 +576,10 @@ Theia.install = function () {
 };
 
 function parseJSON(string) {
+    if((string + "") == "[object Object]"){ // this is if we are given json to start
+        return string;
+    }
+
     try {
         var jsonString = JSON.parse(string);
         return jsonString;

@@ -15,7 +15,7 @@ I then set out to create a plugin of my own, and this is it! It is my first cord
 ### *Requires Cordova 3.0.0+*
 
 # How it works
-Infinite Strike: Theia is a Cordova Plugin around a wrapper for the native HttpUrlConnection and allows us to make 4 main request types "GET", "POST", "PUT", "DELETE".
+Infinite Strike: Theia is a Cordova Plugin around a wrapper for the native HttpUrlConnection and allows us to make 4 main request types "GET", "POST", "PUT", "DELETE". All examples allow for a optional callback to exist that returns if the request ends in error (internal exception or 400+ HTTP 1.1 Code). All requests also allow you to get data in the form of JSON or text with the `payload` field. `payload` can either be JSON or Raw Text from the Server, `payloadJSON` can either be JSON or undefined, as not all raw text can be converted into json.
 
 ##### *Note this plug-in requires that the Device be ready*
 
@@ -87,10 +87,11 @@ window.onload = () => {
   }
 ```
 
+
 ## Managing Headers
 
-You can manage request headers before the request has been sent, currently the ability to read response headers
-is not available.
+You can manage request headers before the request has been sent. Response Headers are Read-Only and changing them has no effect,
+they are also `undefined` prior to a request finishing.
 
 ```javascript
   window.onload = () => {
@@ -98,15 +99,52 @@ is not available.
       var request = Theia.getRequestHelper();
       
       // Set header example
-      request.setHeader("Accepts","application/json");
+      request.setRequestHeader("Accepts","application/json");
       
       // Get header example
-      var acceptsHeaderValue = request.getHeader("Accepts");
+      var acceptsHeaderValue = request.getRequestHeader("Accepts");
       
       // Clear Headers
-      request.clearHeaders();
+      request.clearRequestHeaders();
     });
   }
+
+  // example of reading headers
+  window.onload = () => {
+      document.addEventListener("deviceready",(ev) => {
+          var request = Theia.getRequestHelper();
+          request.post("http://www.exampledomian.com/api/v1/demo",{
+              "key" : "value"
+          },(error, payload, payloadJSON) => {
+              var headers = request.getResponseHeaders();
+              var contentType = headers["Content-Type"];
+              // or
+              var contentType = request.getResonseHeader("Content-Type");
+          });
+      })
+  }
+```
+
+### Response Meta
+
+We have added the ability to read response meta-data. Aside from headers, you can get the response code, and the response message!
+
+```javascript
+    window.onload = () => {
+      document.addEventListener("deviceready",(ev) => {
+          var request = Theia.getRequestHelper();
+          request.post("http://www.exampledomian.com/api/v1/demo",{
+              "key" : "value"
+          },(error, payload, payloadJSON) => {
+              // HTTP 1.1 Code
+              var code = request.getResponseCode();
+
+              // HTTP 1.1 Message, or custom server message.
+              var message = request.getResponseMessage();
+          });
+      })
+  }
+
 ```
 
 # Strange Quirk

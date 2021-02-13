@@ -2,6 +2,9 @@ package io.infinitestrike.http;
 
 
 // Cordova-required packages
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
@@ -49,9 +52,14 @@ public class Theia extends CordovaPlugin {
                     request.send(new TheiaRequest.TheiaRequestHandler() {
                         @Override
                         public void requestCompleteCallback(String arg0) {
-                            // TODO Auto-generated method stub
                             // output request json.
-                            callbackContext.success(arg0);
+                            JsonObject obj = new JsonObject();
+                            obj.addProperty("resp" , arg0); // [0] Maybe Json
+                            obj.addProperty("head", request.getResponseHeaders()); // [1] Always Json
+                            callbackContext.success(new Gson().toJson(obj));
+
+                            // original code
+                            //callbackContext.success(arg0);
                         }
                     });
                     break;
@@ -64,7 +72,13 @@ public class Theia extends CordovaPlugin {
                         @Override
                         public void requestCompleteCallback(String arg0) {
                             // output request json.
-                            callbackContext.success(arg0);
+                            JsonObject obj = new JsonObject();
+                            obj.addProperty("resp" , arg0); // [0] Maybe Json
+                            obj.addProperty("head", request2.getResponseHeaders()); // [1] Always Json
+                            callbackContext.success(new Gson().toJson(obj));
+
+                            // original code
+                            //callbackContext.success(arg0);
                         }
                     });
                     break;
@@ -77,7 +91,13 @@ public class Theia extends CordovaPlugin {
                         @Override
                         public void requestCompleteCallback(String arg0) {
                             // output request json.
-                            callbackContext.success(arg0);
+                            JsonObject obj = new JsonObject();
+                            obj.addProperty("resp" , arg0); // [0] Maybe Json
+                            obj.addProperty("head", request3.getResponseHeaders()); // [1] Always Json
+                            callbackContext.success(new Gson().toJson(obj));
+
+                            // original code
+                            //callbackContext.success(arg0);
                         }
                     });
                     break;
@@ -90,19 +110,54 @@ public class Theia extends CordovaPlugin {
                         @Override
                         public void requestCompleteCallback(String arg0) {
                             // output request json.
-                            callbackContext.success(arg0);
+                            JsonObject obj = new JsonObject();
+                            obj.addProperty("resp" , arg0); // [0] Maybe Json
+                            obj.addProperty("head", request4.getResponseHeaders()); // [1] Always Json
+                            callbackContext.success(new Gson().toJson(obj));
+
+                            // original code
+                            //callbackContext.success(arg0);
                         }
                     });
                     break;
                 default:
-                    callbackContext.error("{\"error\" : true, \"message\" : \"Unknown Action: "+action+" \"}");
+                    JsonObject errorData = new JsonObject();
+                    errorData.addProperty("error",true);
+                    errorData.addProperty("message","Unknown Action: \"" + action + "\"");
+                    JsonObject objResp = new JsonObject();
+                    objResp.addProperty("code",TheiaRequest.INTERNAL_REQUEST_ERROR);
+                    objResp.addProperty("message","Unknown Action: \"" + action + "\"");
+                    objResp.add("data",errorData);
+                    JsonObject obj = new JsonObject();
+                    obj.add("resp" , objResp); // [0] Maybe Json
+                    obj.add("head", new JsonObject()); // [1] Always Json
+                    callbackContext.error(new Gson().toJson(obj));
                     break;
             }
         } catch (Exception e) {
-            callbackContext.error("{\"error\" : true, \"message\" : \""+e.getMessage()+"\"}");
+            JsonObject errorData = new JsonObject();
+            errorData.addProperty("error",true);
+            errorData.addProperty("message",e.getClass().getName() + " : "+ e.getMessage());
+            errorData.addProperty("stacktrace",Theia.stackTracetoString(e.getStackTrace()));
+            JsonObject objResp = new JsonObject();
+            objResp.addProperty("code",TheiaRequest.INTERNAL_REQUEST_ERROR);
+            objResp.addProperty("message",e.getClass().getName() + " : "+ e.getMessage());
+            objResp.add("data",errorData);
+            JsonObject obj = new JsonObject();
+            obj.add("resp" , objResp); // [0] Maybe Json
+            obj.add("head", new JsonObject()); // [1] Always Json
+            callbackContext.error(new Gson().toJson(obj));
             handler.requestCompleteCallback(null);
         }
 
         handler.requestCompleteCallback(null);
+    }
+
+    public static final String stackTracetoString(StackTraceElement[] elements){
+        String result = "";
+        for(StackTraceElement e : elements){
+            result += e.getClassName() + "#" + e.getMethodName() + "; on Line: " + e.getLineNumber() + "\n";
+        }
+        return result;
     }
 }
