@@ -464,7 +464,7 @@ function TheiaRequest(theia) {
      * Helper Function for Theia.get(), fires a get request to the provided endpoint.
      */
     this.get = (urlEndpoint, callback = (err, payload, payloadJSON) => { }) => {
-        theia.get(urlEndpoint, data, (err, payload) => {
+        theia.get(urlEndpoint,(err, payload) => {
             callback(err, payload, parseJSON(payload));
         });
     }
