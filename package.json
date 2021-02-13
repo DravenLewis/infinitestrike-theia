@@ -3,10 +3,10 @@
     "version": "0.0.8",
     "description": "HTTP(s) Request Handler for Android Devices.",
     "cordova": {
-        "id": "io.infinitestrike.http.theia",
-        "platforms": [
-            "android"
-        ]
+      "id": "infinitestrike-theia",
+      "platforms": [
+        "android"
+      ]
     },
     "repository": {
         "type": "git",
@@ -22,10 +22,10 @@
         "cordova-android"
     ],
     "engines": [
-        {
-            "name": "cordova",
-            "version": ">=3.0.0"
-        }
+      {
+        "name": "cordova",
+        "version": ">=3.0.0"
+      }
     ],
     "author": "Draven Lewis",
     "license": "MIT",
@@ -33,4 +33,4 @@
         "url": "https://github.com/DravenLewis/infinitestrike-theia/issues"
     },
     "homepage": "https://dravenlewis.github.io"
-}
+  }
