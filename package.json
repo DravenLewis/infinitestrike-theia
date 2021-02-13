@@ -1,6 +1,6 @@
 {
   "name": "@infinitestrike/infinitestrike-theia",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "HTTP(s) Request Handler for Android Devices.",
   "cordova": {
     "id": "infinitestrike-theia",
