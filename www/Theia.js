@@ -368,14 +368,6 @@ Theia.prototype.delete = function (urlEndpoint, data = {}, callback = (err, payl
 
 // REMOVE IF BROKEN
 
-/**
- * @returns {TheiaRequest}
- * 
- * Creates a new TheiaRequest helper.
- */
-Theia.prototype.getRequestHelper = function () {
-    return new TheiaRequest(new Theia());
-}
 
 // END PLUGIN CODE =====================
 
@@ -383,6 +375,16 @@ Theia.install = function () {
     window.Theia = new Theia();
     return window.Theia;
 };
+
+/**
+ * @returns {TheiaRequest}
+ * 
+ * Creates a new TheiaRequest helper.
+ */
+Theia.getRequestHelper = function () {
+    return new TheiaRequest(new Theia());
+}
+
 
 function isJSON(string) {
     try {
