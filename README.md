@@ -1,6 +1,6 @@
 # InfiniteStrike Theia
 
-![InfiniteStrike-Theia Banner](https://github.com/dravenlewis/infinitestrike-theia/blob/master/theia-banner.png?raw=true)
+<img src = "https://raw.githubusercontent.com/dravenlewis/infinitestrike-theia/main/theia-banner.png" width = "50%" alt = "InfiniteStrike-Theia Banner"/>
 
 A simple HTTP / HTTPS request handler for Cordova based Android Apps.
 
