@@ -1,4 +1,7 @@
 # InfiniteStrike Theia
+
+![InfiniteStrike-Theia Banner](https://github.com/dravenlewis/infinitestrike-theia/blob/master/theia-banner.png?raw=true)
+
 A simple HTTP / HTTPS request handler for Cordova based Android Apps.
 
 ## Installation
